@@ -1,29 +1,28 @@
 package com.example.myapplication
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.JsonArray
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 
 class TestAPI {
-    private val userListLiveData: MutableLiveData<MutableList<UserInfo>> = MutableLiveData()
-
-    fun updateUserList(): MutableLiveData<MutableList<UserInfo>> {
-        return userListLiveData
-    }
+    val userListLiveData: MutableLiveData<MutableList<UserInfo>> = MutableLiveData()
+    val errorMessageLiveData: MutableLiveData<String> = MutableLiveData()
+    var retrofitCall : Call<JsonArray>? = null
 
     fun callAPI() {
-        Retrofit.Builder()
+        retrofitCall = Retrofit.Builder()
             .baseUrl("https://api.github.com")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(APIService::class.java)
             ?.call()
-            ?.enqueue(object : Callback<JsonArray> {
+
+        retrofitCall?.enqueue(object : Callback<JsonArray> {
                 override fun onFailure(call: Call<JsonArray>, t: Throwable) {
                     // fail
-                    Log.d("QAQ", t.toString())
+                    call.cancel()
+                    errorMessageLiveData.value = t.message
                 }
 
                 override fun onResponse(call: Call<JsonArray>, response: Response<JsonArray>) {
@@ -36,8 +35,11 @@ class TestAPI {
                     }
 
                     userListLiveData.value = userList
-                    Log.d("QAQ", "$userList")
                 }
             })
+    }
+
+    fun cancelApi() {
+        retrofitCall?.cancel()
     }
 }
