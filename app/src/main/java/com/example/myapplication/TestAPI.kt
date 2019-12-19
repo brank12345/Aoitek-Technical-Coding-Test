@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.JsonArray
 import retrofit2.*
@@ -22,6 +23,7 @@ class TestAPI {
             ?.enqueue(object : Callback<JsonArray> {
                 override fun onFailure(call: Call<JsonArray>, t: Throwable) {
                     // fail
+                    Log.d("QAQ", t.toString())
                 }
 
                 override fun onResponse(call: Call<JsonArray>, response: Response<JsonArray>) {
@@ -34,6 +36,7 @@ class TestAPI {
                     }
 
                     userListLiveData.value = userList
+                    Log.d("QAQ", "$userList")
                 }
             })
     }
