@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 
 class MainActivityViewModel(private val repository: MainActivityRepository) : ViewModel() {
@@ -8,15 +9,19 @@ class MainActivityViewModel(private val repository: MainActivityRepository) : Vi
     private val userInfoList: MutableLiveData<MutableList<UserInfo>> = MutableLiveData()
     private val errorMessage: MutableLiveData<String> = MutableLiveData()
 
+    private val userInfoListObserver: Observer<MutableList<UserInfo>> = Observer { data ->
+        this@MainActivityViewModel.userInfoList.value = data
+    }
+
+    private val errorMessageObserver: Observer<String> = Observer { data ->
+        this@MainActivityViewModel.errorMessage.value = data
+    }
+
     init {
         repository.apply {
-            userInfoList.observeForever { data->
-                this@MainActivityViewModel.userInfoList.value = data
-            }
+            userInfoList.observeForever(userInfoListObserver)
 
-            errorMessage.observeForever { data ->
-                this@MainActivityViewModel.errorMessage.value = data
-            }
+            errorMessage.observeForever(errorMessageObserver)
         }
     }
 
@@ -42,5 +47,7 @@ class MainActivityViewModel(private val repository: MainActivityRepository) : Vi
     override fun onCleared() {
         super.onCleared()
         repository.release()
+        repository.userInfoList.removeObserver(userInfoListObserver)
+        repository.errorMessage.removeObserver(errorMessageObserver)
     }
 }

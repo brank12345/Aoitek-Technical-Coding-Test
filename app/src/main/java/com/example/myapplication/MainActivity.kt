@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity()
 
             getErrorMessage().observe(this@MainActivity, Observer { errorMessage ->
                 Log.d("QAQ", errorMessage)
+                isLoadingComplete = true
             })
         }
     }

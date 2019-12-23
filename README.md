@@ -5,4 +5,4 @@
 4. Add pagination behavior in RecyclerView and add progress bar view type —> 2 hours
 5. add special (second) view type -> 0.5 hour
 6. Import and implement MVVM architecture —> 1 hours
-
+7. Spike Github pagination, and implement pagination -> 2 hour
