@@ -1,3 +1,7 @@
 package com.example.myapplication
 
-data class UserInfo(val name: String, val imageUrl: String)
+import com.google.gson.annotations.SerializedName
+
+data class UserInfo(@SerializedName("id") val id: Int,
+                    @SerializedName("login") val name: String,
+                    @SerializedName("avatar_url") val imageUrl: String)

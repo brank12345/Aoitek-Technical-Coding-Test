@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity()
         viewModel = ViewModelProviders.of(this, factory).get(MainActivityViewModel::class.java).apply {
             getUserInfoList().observe(this@MainActivity, Observer { data ->
                 data ?: return@Observer
-                data.add(UserInfo("","")) // add empty data in the end for progress bar
+                data.add(UserInfo(-1 ,"","")) // add empty data in the end for progress bar
                 handleDataUpdate(data)
                 isLoadingComplete = true
             })

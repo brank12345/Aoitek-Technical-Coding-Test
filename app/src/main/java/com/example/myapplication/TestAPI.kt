@@ -1,7 +1,6 @@
 package com.example.myapplication
 
 import androidx.lifecycle.MutableLiveData
-import com.google.gson.JsonArray
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -19,7 +18,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 class TestAPI {
     val userListLiveData: MutableLiveData<MutableList<UserInfo>> = MutableLiveData()
     val errorMessageLiveData: MutableLiveData<String> = MutableLiveData()
-    var retrofitCall : Call<JsonArray>? = null
+    private var retrofitCall : Call<List<UserInfo>>? = null
     private var sinceID = 0
 
     companion object {
@@ -32,32 +31,26 @@ class TestAPI {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(APIService::class.java)
-            ?.call( sinceID, PER_PAGE)
+            .call( sinceID, PER_PAGE)
 
-        retrofitCall?.enqueue(object : Callback<JsonArray> {
-                override fun onFailure(call: Call<JsonArray>, t: Throwable) {
-                    // fail
-                    call.cancel()
-                    errorMessageLiveData.value = t.message
+        retrofitCall?.enqueue(object : Callback<List<UserInfo>> {
+            override fun onFailure(call: Call<List<UserInfo>>, t: Throwable) {
+                call.cancel()
+                errorMessageLiveData.value = t.message
+            }
+
+            override fun onResponse(
+                call: Call<List<UserInfo>>,
+                response: Response<List<UserInfo>>
+            ) {
+                response.body()?.size?.apply {
+                    sinceID = response.body()?.get(this-1)?.id ?: -1 + 1
                 }
+                userListLiveData.value = response.body()?.toMutableList()
 
-                override fun onResponse(call: Call<JsonArray>, response: Response<JsonArray>) {
-                    // success
-                    val userList: MutableList<UserInfo> = mutableListOf()
-                    response.body()?.forEach {
-                        val name = it?.asJsonObject?.get("login")?.asString ?: ""
-                        val imageUrl = it?.asJsonObject?.get("avatar_url")?.asString ?: ""
-                        userList.add(UserInfo(name, imageUrl))
-                    }
+            }
 
-                    response.body()?.size()?.apply {
-                        sinceID = response.body()?.get(this - 1)?.asJsonObject?.get("id")?.asInt ?: -1 + 1
-                    }
-
-                    userListLiveData.value = userList
-
-                }
-            })
+        })
     }
 
     fun cancelApi() {
